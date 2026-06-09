@@ -1,5 +1,46 @@
 from django.db import models
 from django.contrib.auth.models import User
+from urllib.parse import parse_qs, urlparse
+
+
+def normalize_video_url(url):
+    if not url:
+        return ''
+
+    normalized_url = url.strip()
+    if normalized_url and '://' not in normalized_url:
+        normalized_url = f'https://{normalized_url}'
+    return normalized_url
+
+
+def get_video_embed_url(url):
+    normalized_url = normalize_video_url(url)
+    if not normalized_url:
+        return ''
+
+    parsed_url = urlparse(normalized_url)
+    hostname = (parsed_url.hostname or '').lower()
+    if hostname.startswith('www.'):
+        hostname = hostname[4:]
+
+    video_id = ''
+    path_parts = [part for part in parsed_url.path.split('/') if part]
+
+    if hostname in {'youtube.com', 'm.youtube.com', 'music.youtube.com'}:
+        if parsed_url.path == '/watch':
+            video_id = parse_qs(parsed_url.query).get('v', [''])[0]
+        elif path_parts and path_parts[0] in {'embed', 'shorts', 'live'} and len(path_parts) > 1:
+            video_id = path_parts[1]
+    elif hostname == 'youtu.be' and path_parts:
+        video_id = path_parts[0]
+
+    if video_id:
+        return f'https://www.youtube.com/embed/{video_id}'
+
+    if hostname == 'vimeo.com' and path_parts and path_parts[0].isdigit():
+        return f'https://player.vimeo.com/video/{path_parts[0]}'
+
+    return normalized_url
 
 
 class Course(models.Model):
@@ -70,3 +111,7 @@ class Lesson(models.Model):
 
     def __str__(self):
         return self.title
+
+    @property
+    def video_embed_url(self):
+        return get_video_embed_url(self.video_url)

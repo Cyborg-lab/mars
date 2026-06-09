@@ -23,11 +23,13 @@ def course_detail(request, pk):
     course = get_object_or_404(Course, pk=pk)
     modules = course.modules.all()
     is_enrolled = request.user in course.students.all() if request.user.is_authenticated else False
+    first_lesson = Lesson.objects.filter(module__course=course).order_by('module__order', 'order').first()
     
     context = {
         'course': course,
         'modules': modules,
         'is_enrolled': is_enrolled,
+        'first_lesson': first_lesson,
     }
     return render(request, 'courses/course_detail.html', context)
 
@@ -54,6 +56,14 @@ def lesson_view(request, course_pk, module_pk, lesson_pk):
     if not is_enrolled:
         messages.error(request, 'You must be enrolled in this course')
         return redirect('course_detail', pk=course_pk)
+
+    if request.method == 'POST':
+        lesson.completed = True
+        lesson.save(update_fields=['completed'])
+        module.completed = not module.lessons.filter(completed=False).exists()
+        module.save(update_fields=['completed'])
+        messages.success(request, 'Lesson marked as complete')
+        return redirect('lesson_view', course_pk=course.pk, module_pk=module.pk, lesson_pk=lesson.pk)
     
     context = {
         'course': course,

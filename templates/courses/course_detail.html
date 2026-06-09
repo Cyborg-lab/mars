@@ -13,7 +13,7 @@
                     <small class="text-white-50">
                         <i class="fas fa-user"></i> by {{ course.instructor.username }}
                     </small>
-                    <span class="mx-2 text-white-50">•</span>
+                    <span class="mx-2 text-white-50">&bull;</span>
                     <small class="text-white-50">
                         <i class="fas fa-users"></i> {{ course.students.count }} students enrolled
                     </small>
@@ -129,9 +129,15 @@
                         <div class="alert alert-success mb-3">
                             <i class="fas fa-check-circle"></i> You are enrolled!
                         </div>
-                        <a href="{% url 'course_detail' course.id %}" class="btn btn-primary w-100 mb-2">
-                            <i class="fas fa-book-open"></i> Continue Learning
-                        </a>
+                        {% if first_lesson %}
+                            <a href="{% url 'lesson_view' course.id first_lesson.module.id first_lesson.id %}" class="btn btn-primary w-100 mb-2">
+                                <i class="fas fa-book-open"></i> Continue Learning
+                            </a>
+                        {% else %}
+                            <button type="button" class="btn btn-primary w-100 mb-2" disabled>
+                                <i class="fas fa-book-open"></i> No Lessons Yet
+                            </button>
+                        {% endif %}
                     {% else %}
                         <h5 class="mb-3">Ready to start?</h5>
                         <form method="post" action="{% url 'enroll_course' course.id %}">

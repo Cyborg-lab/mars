@@ -1,9 +1,30 @@
 from django.contrib import admin
-from .models import Course, Module, Lesson
+from django import forms
+from django.core.validators import URLValidator
+from .models import Course, Module, Lesson, normalize_video_url
+
+
+class LessonAdminForm(forms.ModelForm):
+    video_url = forms.CharField(
+        required=False,
+        label='Video URL',
+        help_text='YouTube yoki Vimeo linkini kiriting. Masalan: youtube.com/watch?v=...',
+    )
+
+    class Meta:
+        model = Lesson
+        fields = '__all__'
+
+    def clean_video_url(self):
+        video_url = normalize_video_url(self.cleaned_data.get('video_url'))
+        if video_url:
+            URLValidator()(video_url)
+        return video_url
 
 
 class LessonInline(admin.TabularInline):
     model = Lesson
+    form = LessonAdminForm
     extra = 1
 
 
@@ -29,5 +50,7 @@ class ModuleAdmin(admin.ModelAdmin):
 
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
+    form = LessonAdminForm
     list_display = ['title', 'module', 'lesson_type', 'order']
     list_filter = ['lesson_type', 'module__course']
+    search_fields = ['title', 'description', 'video_url']
