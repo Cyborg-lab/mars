@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Mars IT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="display-5">Your Dashboard</h1>
+        <p class="lead">Welcome back, {{ user.username }}!</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row mb-5">
+        <!-- User Info Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    {% if user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                    {% else %}
+                        <i class="fas fa-user-circle" style="font-size: 5rem; color: var(--mars-blue);"></i>
+                    {% endif %}
+                    <h3>{{ user.first_name|default:user.username }}</h3>
+                    <p class="text-muted">{{ user.email }}</p>
+                    <p class="text-muted mb-3">
+                        <span class="badge bg-info">{{ user.profile.role|title }}</span>
+                    </p>
+                    <div class="mb-3">
+                        <small class="text-muted">Progress</small>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: {{ user.profile.progress }}%"></div>
+                        </div>
+                        <small class="text-muted">{{ user.profile.progress }}%</small>
+                    </div>
+                    <a href="{% url 'profile' %}" class="btn btn-primary btn-sm w-100">
+                        <i class="fas fa-user"></i> View Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="col-md-8">
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-white-50 mb-1">Enrolled Courses</h6>
+                                    <h2 class="mb-0">{{ courses.count }}</h2>
+                                </div>
+                                <i class="fas fa-book-open" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card bg-warning text-dark">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-dark-50 mb-1">Cart Items</h6>
+                                    <h2 class="mb-0">{{ user.cart.items.count }}</h2>
+                                </div>
+                                <i class="fas fa-shopping-cart" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-white-50 mb-1">My Orders</h6>
+                                    <h2 class="mb-0">{{ user.orders.count }}</h2>
+                                </div>
+                                <i class="fas fa-box" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-white-50 mb-1">Total Spent</h6>
+                                    <h2 class="mb-0">${{ total_spent|floatformat:2 }}</h2>
+                                </div>
+                                <i class="fas fa-coins" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enrolled Courses -->
+    <h2 class="mb-4"><i class="fas fa-graduation-cap"></i> My Courses</h2>
+    {% if courses %}
+        <div class="row">
+            {% for course in courses %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        {% if course.image %}
+                            <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <div class="card-img-top bg-secondary" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-book" style="font-size: 2rem; color: white;"></i>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ course.title }}</h5>
+                            <p class="card-text text-muted small">{{ course.level }}</p>
+                            <div class="mb-3">
+                                <small class="text-muted">Progress: {{ course.progress }}%</small>
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: {{ course.progress }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light border-0">
+                            <a href="{% url 'course_detail' course.id %}" class="btn btn-primary btn-sm w-100">
+                                <i class="fas fa-arrow-right"></i> Continue
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle"></i> You haven't enrolled in any courses yet.
+            <a href="{% url 'course_list' %}" class="alert-link">Browse courses</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

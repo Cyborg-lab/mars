@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Courses - Mars IT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="display-5">Explore Courses</h1>
+        <p class="lead">Learn new skills from expert instructors</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <h5 class="mb-3"><i class="fas fa-filter"></i> Filter by Level</h5>
+            <div class="list-group">
+                <a href="{% url 'course_list' %}" class="list-group-item list-group-item-action {% if not selected_level %}active{% endif %}">
+                    All Levels
+                </a>
+                {% for level in levels %}
+                    <a href="?level={{ level }}" class="list-group-item list-group-item-action {% if selected_level == level %}active{% endif %}">
+                        {{ level }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            {% if courses %}
+                <div class="row">
+                    {% for course in courses %}
+                        <div class="col-md-6 col-lg-6 mb-4">
+                            <div class="card course-card h-100">
+                                <div class="position-relative">
+                                    {% if course.image %}
+                                        <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}">
+                                    {% else %}
+                                        <div class="card-img-top bg-secondary" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-book" style="font-size: 3rem; color: white;"></i>
+                                        </div>
+                                    {% endif %}
+                                    <span class="level-badge level-{{ course.level|lower }}">{{ course.level }}</span>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ course.title }}</h5>
+                                    <p class="card-text text-muted small">{{ course.description|truncatewords:20 }}</p>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <small class="text-muted">
+                                            <i class="fas fa-user"></i> {{ course.instructor.username }}
+                                        </small>
+                                        <small class="text-muted">
+                                            <i class="fas fa-users"></i> {{ course.students.count }} students
+                                        </small>
+                                    </div>
+                                    
+                                    {% if course.price > 0 %}
+                                        <p class="h5 text-danger mb-2">{{ course.price }} so'm</p>
+                                    {% else %}
+                                        <p class="h5 text-success mb-2">Free</p>
+                                    {% endif %}
+
+                                    <div class="mb-3">
+                                        <small class="text-muted">Progress: {{ course.progress }}%</small>
+                                        <div class="progress">
+                                            <div class="progress-bar" style="width: {{ course.progress }}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-light border-0">
+                                    <a href="{% url 'course_detail' course.id %}" class="btn btn-primary w-100">
+                                        <i class="fas fa-arrow-right"></i> View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i> No courses found for the selected level.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

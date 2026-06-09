@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile - Mars IT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="display-5">Edit Your Profile</h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Avatar -->
+                        <div class="mb-4 text-center">
+                            <div class="mb-3">
+                                {% if profile.avatar %}
+                                    <img src="{{ profile.avatar.url }}" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                                {% else %}
+                                    <i class="fas fa-user-circle" style="font-size: 4rem; color: var(--mars-blue);"></i>
+                                {% endif %}
+                            </div>
+                            <label for="avatar" class="form-label">
+                                <i class="fas fa-image"></i> Update Avatar
+                            </label>
+                            <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*">
+                            <small class="text-muted">JPG, PNG or GIF. Max size 5MB.</small>
+                        </div>
+
+                        <!-- Bio -->
+                        <div class="mb-3">
+                            <label for="bio" class="form-label">
+                                <i class="fas fa-align-left"></i> Bio
+                            </label>
+                            <textarea class="form-control" id="bio" name="bio" rows="4" placeholder="Tell us about yourself...">{{ profile.bio }}</textarea>
+                            <small class="text-muted">Max 500 characters</small>
+                        </div>
+
+                        <!-- Role -->
+                        <div class="mb-3">
+                            <label for="role" class="form-label">
+                                <i class="fas fa-user-tag"></i> Role
+                            </label>
+                            <input type="text" class="form-control" value="{{ profile.role|title }}" disabled>
+                            <small class="text-muted">Role cannot be changed after registration</small>
+                        </div>
+
+                        <!-- Progress -->
+                        <div class="mb-4">
+                            <label for="progress" class="form-label">
+                                <i class="fas fa-chart-line"></i> Progress
+                            </label>
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar" style="width: {{ profile.progress }}%">
+                                    {{ profile.progress }}%
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'profile' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

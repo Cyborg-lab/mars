@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ lesson.title }} - Mars IT{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Video/Content Area -->
+            <div class="card mb-4">
+                <div class="card-body p-0">
+                    {% if lesson.lesson_type == 'video' %}
+                        {% if lesson.video_url %}
+                            <div style="aspect-ratio: 16/9; background: #000;">
+                                <iframe width="100%" height="100%" src="{{ lesson.video_url }}" frameborder="0" allowfullscreen></iframe>
+                            </div>
+                        {% else %}
+                            <div style="aspect-ratio: 16/9; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                                <div class="text-center">
+                                    <i class="fas fa-video" style="font-size: 3rem; color: #ccc;"></i>
+                                    <p class="text-muted mt-2">Video content not available</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% elif lesson.lesson_type == 'quiz' %}
+                        <div style="aspect-ratio: 16/9; background: linear-gradient(135deg, var(--mars-blue) 0%, #003366 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                            <div class="text-center">
+                                <i class="fas fa-question-circle" style="font-size: 3rem;"></i>
+                                <h3 class="mt-2">Quiz</h3>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div style="aspect-ratio: 16/9; background: linear-gradient(135deg, var(--mars-orange) 0%, #e55a28 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                            <div class="text-center">
+                                <i class="fas fa-tasks" style="font-size: 3rem;"></i>
+                                <h3 class="mt-2">Project</h3>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Lesson Details -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        {% if lesson.lesson_type == 'video' %}
+                            <i class="fas fa-play-circle text-danger"></i>
+                        {% elif lesson.lesson_type == 'quiz' %}
+                            <i class="fas fa-question-circle text-warning"></i>
+                        {% else %}
+                            <i class="fas fa-tasks text-success"></i>
+                        {% endif %}
+                        {{ lesson.title }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">
+                        <i class="fas fa-calendar"></i> Posted on {{ lesson.created_at|date:"M d, Y" }}
+                    </p>
+
+                    {% if lesson.description %}
+                        <h6>Description</h6>
+                        <p>{{ lesson.description }}</p>
+                        <hr>
+                    {% endif %}
+
+                    {% if lesson.content %}
+                        <h6>Content</h6>
+                        <div class="bg-light p-3 rounded">
+                            {{ lesson.content|linebreaks }}
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <form method="post" action="#" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check"></i> Mark as Complete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Course Info -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">Course</h6>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ course.title }}</h5>
+                    <p class="card-text text-muted small">{{ course.level }}</p>
+                    <a href="{% url 'course_detail' course.id %}" class="btn btn-outline-primary btn-sm w-100">
+                        Back to Course
+                    </a>
+                </div>
+            </div>
+
+            <!-- Modules Navigation -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-folder"></i> Modules</h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for mod in modules %}
+                        <div class="list-group-item {% if mod.id == module.id %}active{% endif %}">
+                            <h6 class="mb-2">
+                                {% if mod.completed %}
+                                    <i class="fas fa-check-circle text-success"></i>
+                                {% else %}
+                                    <i class="fas fa-circle text-muted"></i>
+                                {% endif %}
+                                {{ mod.title }}
+                            </h6>
+                            {% if mod.id == module.id %}
+                                <small class="list-unstyled">
+                                    {% for les in mod.lessons.all %}
+                                        <a href="{% url 'lesson_view' course.id mod.id les.id %}" class="d-block text-decoration-none mb-2 {% if les.id == lesson.id %}active fw-bold{% else %}text-muted{% endif %}">
+                                            {% if les.lesson_type == 'video' %}
+                                                <i class="fas fa-play-circle"></i>
+                                            {% elif les.lesson_type == 'quiz' %}
+                                                <i class="fas fa-question-circle"></i>
+                                            {% else %}
+                                                <i class="fas fa-tasks"></i>
+                                            {% endif %}
+                                            {{ les.title }}
+                                        </a>
+                                    {% endfor %}
+                                </small>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Order #{{ order.id }} - Mars IT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="display-5">Order #{{ order.id }}</h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Order Details -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Order Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Order Date</p>
+                            <h6>{{ order.created_at|date:"M d, Y H:i" }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Status</p>
+                            <h6>
+                                <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'processing' %}info{% elif order.status == 'pending' %}warning{% else %}danger{% endif %}" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                                    {{ order.status|title }}
+                                </span>
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Ordered By</p>
+                            <h6>{{ order.user.first_name|default:order.user.username }} {{ order.user.last_name }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Email</p>
+                            <h6>{{ order.user.email }}</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-shopping-bag"></i> Items</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                                <tr>
+                                    <td>{{ item.product.name }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>{{ item.price }} so'm</td>
+                                    <td>{{ item.get_total|floatformat:2 }} so'm</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="col-md-4">
+            <div class="card sticky-top" style="top: 80px;">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Subtotal:</span>
+                        <strong>{{ order.total }} so'm</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Shipping:</span>
+                        <strong>Free</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Tax:</span>
+                        <strong>0 so'm</strong>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-4">
+                        <h6 class="mb-0">Total:</h6>
+                        <h5 class="text-danger mb-0">{{ order.total }} so'm</h5>
+                    </div>
+
+                    <a href="{% url 'order_list' %}" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-arrow-left"></i> Back to Orders
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom filter for multiplying in template -->
+<script type="text/javascript">
+    // This is just for display, actual calculation is done server-side
+</script>
+{% endblock %}

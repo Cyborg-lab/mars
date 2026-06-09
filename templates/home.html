@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Mars IT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="display-4 mb-2">Welcome to Mars IT</h1>
+        <p class="lead">Learn new skills and transform your career with our comprehensive courses and tools</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Featured Courses Section -->
+    <div class="mb-5">
+        <h2 class="mb-4"><i class="fas fa-star"></i> Featured Courses</h2>
+        <div class="row">
+            {% for course in courses %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card course-card h-100">
+                        <div class="position-relative">
+                            {% if course.image %}
+                                <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}">
+                            {% else %}
+                                <div class="card-img-top bg-secondary" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-book" style="font-size: 3rem; color: white;"></i>
+                                </div>
+                            {% endif %}
+                            <span class="level-badge level-{{ course.level|lower }}">{{ course.level }}</span>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ course.title }}</h5>
+                            <p class="card-text text-muted small">{{ course.description|truncatewords:15 }}</p>
+                            <p class="mb-2">
+                                <small class="text-muted">by {{ course.instructor.username }}</small>
+                            </p>
+                            {% if course.price > 0 %}
+                                <p class="h5 text-danger mb-3">{{ course.price }} so'm</p>
+                            {% else %}
+                                <p class="h5 text-success mb-3">Free</p>
+                            {% endif %}
+                            <div class="mb-3">
+                                <small class="text-muted">Progress: {{ course.progress }}%</small>
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: {{ course.progress }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light border-0">
+                            <a href="{% url 'course_detail' course.id %}" class="btn btn-outline-primary btn-sm w-100">
+                                <i class="fas fa-arrow-right"></i> View Course
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'course_list' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-book"></i> Browse All Courses
+            </a>
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <!-- Shop Section -->
+    <div class="mb-5">
+        <h2 class="mb-4"><i class="fas fa-shopping-bag"></i> Mars IT Shop</h2>
+        <div class="row">
+            {% for product in products %}
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card h-100">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <div class="card-img-top bg-light" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-image" style="font-size: 2rem; color: #ccc;"></i>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text text-muted small">{{ product.category|title }}</p>
+                            <p class="h5 text-danger">{{ product.price }} so'm</p>
+                            <small class="text-muted">
+                                {% if product.stock > 0 %}
+                                    <i class="fas fa-check text-success"></i> In Stock ({{ product.stock }})
+                                {% else %}
+                                    <i class="fas fa-times text-danger"></i> Out of Stock
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="card-footer bg-light border-0">
+                            <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-primary btn-sm w-100">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'shop_list' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-store"></i> Visit Our Shop
+            </a>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="row bg-white rounded p-5 mb-5" style="background: linear-gradient(135deg, var(--mars-blue) 0%, #003366 100%); color: white;">
+        <div class="col-md-6">
+            <h2>Start Your Learning Journey Today</h2>
+            <p class="lead">Join thousands of students learning new skills with Mars IT</p>
+            {% if not user.is_authenticated %}
+                <a href="{% url 'register' %}" class="btn btn-warning btn-lg me-2">
+                    <i class="fas fa-user-plus"></i> Register Now
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            {% else %}
+                <a href="{% url 'course_list' %}" class="btn btn-warning btn-lg me-2">
+                    <i class="fas fa-book"></i> Explore Courses
+                </a>
+            {% endif %}
+        </div>
+        <div class="col-md-6 text-center">
+            <i class="fas fa-graduation-cap" style="font-size: 5rem; opacity: 0.3;"></i>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ course.title }} - Mars IT{% endblock %}
+
+{% block content %}
+<div style="background: linear-gradient(135deg, var(--mars-blue) 0%, #003366 100%); color: white; padding: 50px 0; margin-bottom: 30px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <h1 class="display-5 mb-3">{{ course.title }}</h1>
+                <p class="lead">{{ course.description }}</p>
+                <div class="mb-3">
+                    <small class="text-white-50">
+                        <i class="fas fa-user"></i> by {{ course.instructor.username }}
+                    </small>
+                    <span class="mx-2 text-white-50">•</span>
+                    <small class="text-white-50">
+                        <i class="fas fa-users"></i> {{ course.students.count }} students enrolled
+                    </small>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                {% if course.image %}
+                    <img src="{{ course.image.url }}" class="img-fluid rounded" alt="{{ course.title }}" style="max-width: 300px;">
+                {% else %}
+                    <div class="bg-light rounded p-5">
+                        <i class="fas fa-book" style="font-size: 4rem; color: var(--mars-blue);"></i>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Course Information -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Course Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Level</p>
+                            <h6>
+                                <span class="badge level-{{ course.level|lower }}">{{ course.level }}</span>
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Price</p>
+                            <h6>
+                                {% if course.price > 0 %}
+                                    <span class="text-danger">{{ course.price }} so'm</span>
+                                {% else %}
+                                    <span class="text-success">Free</span>
+                                {% endif %}
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <p class="text-muted mb-1">Progress</p>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar" style="width: {{ course.progress }}%"></div>
+                        </div>
+                        <small class="text-muted">{{ course.progress }}%</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Modules -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-list"></i> Course Modules ({{ modules.count }})</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for module in modules %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">
+                                        <i class="fas fa-folder"></i> {{ module.title }}
+                                    </h6>
+                                    <p class="text-muted mb-2 small">
+                                        {{ module.lessons.count }} lessons
+                                    </p>
+                                    {% if is_enrolled %}
+                                        <div class="list-unstyled">
+                                            {% for lesson in module.lessons.all %}
+                                                <a href="{% url 'lesson_view' course.id module.id lesson.id %}" class="small text-decoration-none">
+                                                    {% if lesson.lesson_type == 'video' %}
+                                                        <i class="fas fa-play-circle text-danger"></i>
+                                                    {% elif lesson.lesson_type == 'quiz' %}
+                                                        <i class="fas fa-question-circle text-warning"></i>
+                                                    {% else %}
+                                                        <i class="fas fa-tasks text-success"></i>
+                                                    {% endif %}
+                                                    {{ lesson.title }}
+                                                </a>
+                                                <br>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="text-end">
+                                    {% if module.completed %}
+                                        <i class="fas fa-check-circle text-success" style="font-size: 1.5rem;"></i>
+                                    {% else %}
+                                        <i class="fas fa-circle text-muted" style="font-size: 1.5rem; opacity: 0.5;"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="list-group-item">
+                            <p class="text-muted mb-0">No modules available yet.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <div class="card sticky-top" style="top: 80px;">
+                <div class="card-body text-center">
+                    {% if is_enrolled %}
+                        <div class="alert alert-success mb-3">
+                            <i class="fas fa-check-circle"></i> You are enrolled!
+                        </div>
+                        <a href="{% url 'course_detail' course.id %}" class="btn btn-primary w-100 mb-2">
+                            <i class="fas fa-book-open"></i> Continue Learning
+                        </a>
+                    {% else %}
+                        <h5 class="mb-3">Ready to start?</h5>
+                        <form method="post" action="{% url 'enroll_course' course.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                <i class="fas fa-user-plus"></i> Enroll Now
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    <hr class="my-4">
+
+                    <h6 class="mb-3">What you'll learn:</h6>
+                    <ul class="list-unstyled text-start small">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success"></i> Comprehensive curriculum
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success"></i> Expert instruction
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success"></i> Hands-on projects
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success"></i> Certificate of completion
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Shop - Mars IT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="display-5">Mars IT Shop</h1>
+        <p class="lead">Browse our exclusive Mars IT merchandise</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <h5 class="mb-3"><i class="fas fa-filter"></i> Categories</h5>
+            <div class="list-group">
+                <a href="{% url 'shop_list' %}" class="list-group-item list-group-item-action {% if not selected_category %}active{% endif %}">
+                    All Products
+                </a>
+                {% for category in categories %}
+                    <a href="?category={{ category }}" class="list-group-item list-group-item-action {% if selected_category == category %}active{% endif %}">
+                        {{ category|title }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            {% if products %}
+                <div class="row">
+                    {% for product in products %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100">
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 250px; object-fit: cover;">
+                                {% else %}
+                                    <div class="card-img-top bg-light" style="height: 250px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-image" style="font-size: 3rem; color: #ccc;"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ product.name }}</h5>
+                                    <p class="card-text text-muted small">{{ product.category|title }}</p>
+                                    
+                                    {% if product.description %}
+                                        <p class="card-text small text-muted">{{ product.description|truncatewords:15 }}</p>
+                                    {% endif %}
+
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="text-danger mb-0">{{ product.price }} so'm</h5>
+                                        {% if product.stock > 0 %}
+                                            <small class="text-success">
+                                                <i class="fas fa-check-circle"></i> In Stock
+                                            </small>
+                                        {% else %}
+                                            <small class="text-danger">
+                                                <i class="fas fa-times-circle"></i> Out of Stock
+                                            </small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-light border-0">
+                                    <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-primary w-100 btn-sm">
+                                        <i class="fas fa-eye"></i> View Product
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i> No products found in this category.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
